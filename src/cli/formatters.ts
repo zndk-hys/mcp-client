@@ -1,31 +1,99 @@
+import pc from "picocolors";
+
+/**
+ * Format multi-line text with proper indentation
+ */
+function formatMultiLineText(text: string, prefix: string, colorFn: (str: string) => string = pc.white): string[] {
+  const lines: string[] = [];
+  const textLines = text.split(/\r?\n/);
+
+  textLines.forEach((line, index) => {
+    if (index === 0) {
+      lines.push(prefix + colorFn(line));
+    } else {
+      // Subsequent lines get the same indentation (calculate based on prefix length without ANSI codes)
+      const baseIndent = "  ";
+      lines.push(baseIndent + colorFn(line));
+    }
+  });
+
+  return lines;
+}
+
 /**
  * Format tools list for display
  */
 export function formatTools(tools: any[]): string {
   if (!tools || tools.length === 0) {
-    return "No tools available.";
+    return pc.yellow("\n⚠  No tools available.\n");
   }
 
   const lines: string[] = [
-    `\nAvailable Tools (${tools.length}):\n`,
-    "=".repeat(50),
+    "",
+    pc.bold(pc.cyan("🛠  Available Tools")) + pc.dim(` (${tools.length})`),
+    "",
   ];
 
   tools.forEach((tool, index) => {
-    lines.push(`\n${index + 1}. ${tool.name}`);
+    // Tool name with index
+    lines.push(pc.bold(pc.green(`${index + 1}. ${tool.name}`)));
+
+    // Description
     if (tool.description) {
-      lines.push(`   Description: ${tool.description}`);
+      const descLines = formatMultiLineText(
+        tool.description,
+        "  ",
+        pc.white
+      );
+      lines.push(...descLines);
     }
+
+    // Input Schema
     if (tool.inputSchema) {
-      lines.push(`   Input Schema:`);
-      const schemaStr = JSON.stringify(tool.inputSchema, null, 2);
-      schemaStr.split('\n').forEach(line => {
-        lines.push(`     ${line}`);
-      });
+      if (tool.inputSchema.properties) {
+        const props = tool.inputSchema.properties;
+        const required = tool.inputSchema.required || [];
+
+        const propKeys = Object.keys(props);
+        if (propKeys.length > 0) {
+          lines.push(pc.dim("  Parameters:"));
+
+          propKeys.forEach((key) => {
+            const prop = props[key];
+            const isRequired = required.includes(key);
+            const requiredTag = isRequired
+              ? pc.red(" [required]")
+              : pc.dim(" [optional]");
+
+            lines.push(
+              "    " +
+              pc.yellow("• ") +
+              pc.magenta(key) +
+              pc.dim(`: ${prop.type}`) +
+              requiredTag
+            );
+
+            if (prop.description) {
+              const propDescLines = formatMultiLineText(
+                prop.description,
+                "      ",
+                pc.dim
+              );
+              lines.push(...propDescLines);
+            }
+          });
+        }
+      }
+    }
+
+    // Add separator between tools
+    if (index < tools.length - 1) {
+      lines.push("");
     }
   });
 
-  lines.push("\n" + "=".repeat(50));
+  lines.push("");
+
   return lines.join("\n");
 }
 
@@ -34,32 +102,64 @@ export function formatTools(tools: any[]): string {
  */
 export function formatPrompts(prompts: any[]): string {
   if (!prompts || prompts.length === 0) {
-    return "No prompts available.";
+    return pc.yellow("\n⚠  No prompts available.\n");
   }
 
   const lines: string[] = [
-    `\nAvailable Prompts (${prompts.length}):\n`,
-    "=".repeat(50),
+    "",
+    pc.bold(pc.cyan("💬 Available Prompts")) + pc.dim(` (${prompts.length})`),
+    "",
   ];
 
   prompts.forEach((prompt, index) => {
-    lines.push(`\n${index + 1}. ${prompt.name}`);
+    // Prompt name with index
+    lines.push(pc.bold(pc.green(`${index + 1}. ${prompt.name}`)));
+
+    // Description
     if (prompt.description) {
-      lines.push(`   Description: ${prompt.description}`);
+      const descLines = formatMultiLineText(
+        prompt.description,
+        "  ",
+        pc.white
+      );
+      lines.push(...descLines);
     }
+
+    // Arguments
     if (prompt.arguments && prompt.arguments.length > 0) {
-      lines.push(`   Arguments:`);
+      lines.push(pc.dim("  Arguments:"));
+
       prompt.arguments.forEach((arg: any) => {
-        const required = arg.required ? " (required)" : " (optional)";
-        lines.push(`     - ${arg.name}${required}`);
+        const requiredTag = arg.required
+          ? pc.red(" [required]")
+          : pc.dim(" [optional]");
+
+        lines.push(
+          "    " +
+          pc.yellow("• ") +
+          pc.magenta(arg.name) +
+          requiredTag
+        );
+
         if (arg.description) {
-          lines.push(`       ${arg.description}`);
+          const argDescLines = formatMultiLineText(
+            arg.description,
+            "      ",
+            pc.dim
+          );
+          lines.push(...argDescLines);
         }
       });
     }
+
+    // Add separator between prompts
+    if (index < prompts.length - 1) {
+      lines.push("");
+    }
   });
 
-  lines.push("\n" + "=".repeat(50));
+  lines.push("");
+
   return lines.join("\n");
 }
 
@@ -68,25 +168,45 @@ export function formatPrompts(prompts: any[]): string {
  */
 export function formatResources(resources: any[]): string {
   if (!resources || resources.length === 0) {
-    return "No resources available.";
+    return pc.yellow("\n⚠  No resources available.\n");
   }
 
   const lines: string[] = [
-    `\nAvailable Resources (${resources.length}):\n`,
-    "=".repeat(50),
+    "",
+    pc.bold(pc.cyan("📦 Available Resources")) + pc.dim(` (${resources.length})`),
+    "",
   ];
 
   resources.forEach((resource, index) => {
-    lines.push(`\n${index + 1}. ${resource.name || resource.uri}`);
-    lines.push(`   URI: ${resource.uri}`);
+    // Resource name with index
+    const name = resource.name || resource.uri;
+    lines.push(pc.bold(pc.green(`${index + 1}. ${name}`)));
+
+    // URI
+    lines.push("  " + pc.dim("URI: ") + pc.blue(resource.uri));
+
+    // Description
     if (resource.description) {
-      lines.push(`   Description: ${resource.description}`);
+      const descLines = formatMultiLineText(
+        resource.description,
+        "  ",
+        pc.white
+      );
+      lines.push(...descLines);
     }
+
+    // MIME Type
     if (resource.mimeType) {
-      lines.push(`   MIME Type: ${resource.mimeType}`);
+      lines.push("  " + pc.dim("MIME Type: ") + pc.yellow(resource.mimeType));
+    }
+
+    // Add separator between resources
+    if (index < resources.length - 1) {
+      lines.push("");
     }
   });
 
-  lines.push("\n" + "=".repeat(50));
+  lines.push("");
+
   return lines.join("\n");
 }
