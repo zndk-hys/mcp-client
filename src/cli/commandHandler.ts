@@ -1,5 +1,6 @@
 import { MCPClient } from "../client/MCPClient.js";
 import { printHelp } from "./help.js";
+import { formatTools, formatPrompts, formatResources } from "./formatters.js";
 
 export async function handleCommand(
   line: string,
@@ -17,7 +18,7 @@ export async function handleCommand(
           break;
         }
         const tools = await client.listTools();
-        console.log(JSON.stringify(tools, null, 2));
+        console.log(formatTools(tools));
         break;
 
       case "call":
@@ -41,7 +42,7 @@ export async function handleCommand(
           break;
         }
         const prompts = await client.listPrompts();
-        console.log(JSON.stringify(prompts, null, 2));
+        console.log(formatPrompts(prompts));
         break;
 
       case "prompt":
@@ -65,7 +66,7 @@ export async function handleCommand(
           break;
         }
         const resources = await client.listResources();
-        console.log(JSON.stringify(resources, null, 2));
+        console.log(formatResources(resources));
         break;
 
       case "resource":
