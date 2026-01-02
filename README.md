@@ -24,20 +24,20 @@ npm run build
 MCPサーバーのコマンドを `--` の後に指定して起動します：
 
 ```bash
-npm start -- <MCPサーバーのコマンド> [引数...]
+npx mcp-client -- <MCPサーバーのコマンド> [引数...]
 ```
 
 ### 使用例
 
 ```bash
 # npxでMCPサーバーを起動する場合
-npm start -- npx -y @modelcontextprotocol/server-everything
+npx mcp-client -- npx -y @modelcontextprotocol/server-everything
 
 # Next.js Devtools MCPを使用する場合
-npm start -- npx -y next-devtools-mcp@latest
+npx mcp-client -- npx -y next-devtools-mcp@latest
 
 # ローカルのサーバースクリプトを起動する場合
-npm start -- node path/to/server.js
+npx mcp-client -- node path/to/server.js
 ```
 
 ### 対話コマンド
@@ -66,7 +66,7 @@ npm start -- node path/to/server.js
 ## セッション例
 
 ```
-$ npm start -- npx -y @modelcontextprotocol/server-everything
+$ npx mcp-client -- npx -y @modelcontextprotocol/server-everything
 
 Connected to MCP server
 MCP Client - Model Context Protocol Client
