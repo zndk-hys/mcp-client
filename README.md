@@ -1,68 +1,87 @@
 # MCP Client
 
-A generic Model Context Protocol (MCP) client that communicates with MCP servers via standard input/output (stdio).
+Model Context Protocol (MCP) サーバーと標準入出力 (stdio) で通信する汎用MCPクライアントです。
 
-## Features
+## 機能
 
-- Connect to any MCP server using stdio transport
-- List and call tools
-- List and get prompts
-- List and read resources
-- Interactive CLI interface
-- TypeScript support
+- stdioトランスポートを使用して任意のMCPサーバーに接続
+- ツールの一覧表示と呼び出し
+- プロンプトの一覧表示と取得
+- リソースの一覧表示と読み取り
+- 対話型CLIインターフェース
 
-## Installation
+## インストール
 
 ```bash
 npm install
 npm run build
 ```
 
-## Usage
+## 使い方
 
-### Using npx (local)
+### 基本的な使い方
+
+MCPサーバーのコマンドを `--` の後に指定して起動します：
 
 ```bash
-npx mcp-client
+npm start -- <MCPサーバーのコマンド> [引数...]
 ```
 
-### Interactive Commands
+### 使用例
 
-Once the client is running, you can use the following commands:
+```bash
+# npxでMCPサーバーを起動する場合
+npm start -- npx -y @modelcontextprotocol/server-everything
 
-#### Connection
-- `connect <command> [args...]` - Connect to an MCP server
-  - Example: `connect npx @modelcontextprotocol/server-everything`
-  - Example: `connect node path/to/server.js`
-- `disconnect` - Disconnect from the current server
+# Next.js Devtools MCPを使用する場合
+npm start -- npx -y next-devtools-mcp@latest
 
-#### Tools
-- `tools` - List all available tools
-- `call <tool> [args...]` - Call a tool (args should be valid JSON)
-  - Example: `call echo {"message": "Hello, World!"}`
+# ローカルのサーバースクリプトを起動する場合
+npm start -- node path/to/server.js
+```
 
-#### Prompts
-- `prompts` - List all available prompts
-- `prompt <name> [args...]` - Get a prompt (args should be valid JSON)
-  - Example: `prompt greeting {"name": "Alice"}`
+### 対話コマンド
 
-#### Resources
-- `resources` - List all available resources
-- `resource <uri>` - Read a resource by URI
+起動後、以下のコマンドが使用できます：
 
-#### Other
-- `info` - Get server information
-- `help` - Show help message
-- `exit` - Exit the client
+#### ツール
+- `tools` - 利用可能なツールの一覧を表示
+- `call <tool> [args...]` - ツールを呼び出す（引数は有効なJSON形式）
+  - 例: `call echo {"message": "Hello, World!"}`
 
-## Example Session
+#### プロンプト
+- `prompts` - 利用可能なプロンプトの一覧を表示
+- `prompt <name> [args...]` - プロンプトを取得（引数は有効なJSON形式）
+  - 例: `prompt greeting {"name": "Alice"}`
+
+#### リソース
+- `resources` - 利用可能なリソースの一覧を表示
+- `resource <uri>` - URIでリソースを読み取る
+
+#### その他
+- `info` - サーバー情報を取得
+- `help` - ヘルプメッセージを表示
+- `exit` - クライアントを終了
+
+## セッション例
 
 ```
+$ npm start -- npx -y @modelcontextprotocol/server-everything
+
+Connected to MCP server
 MCP Client - Model Context Protocol Client
 Type 'help' for available commands.
 
-mcp> connect npx @modelcontextprotocol/server-everything
-Connected to MCP server
+Available commands:
+  tools                        - List available tools
+  call <tool> [args...]       - Call a tool (args as JSON)
+  prompts                      - List available prompts
+  prompt <name> [args...]     - Get a prompt (args as JSON)
+  resources                    - List available resources
+  resource <uri>              - Read a resource
+  info                        - Get server information
+  help                        - Show this help
+  exit                        - Exit the client
 
 mcp> tools
 [
@@ -90,46 +109,24 @@ mcp> call echo {"message": "Hello!"}
   ]
 }
 
-mcp> disconnect
-Disconnected from MCP server
-
 mcp> exit
 Goodbye!
 ```
 
-## Development
+## 開発
 
-### Build
+### ビルド
 
 ```bash
 npm run build
 ```
 
-### Watch Mode
+### ウォッチモード
 
 ```bash
 npm run dev
 ```
 
-## API
-
-You can also use this as a library:
-
-```typescript
-import { MCPClient } from 'mcp-client';
-
-const client = new MCPClient({
-  command: 'npx',
-  args: ['@modelcontextprotocol/server-everything'],
-});
-
-await client.connect();
-const tools = await client.listTools();
-console.log(tools);
-
-await client.disconnect();
-```
-
-## License
+## ライセンス
 
 MIT

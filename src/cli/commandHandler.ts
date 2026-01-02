@@ -1,68 +1,19 @@
-#!/usr/bin/env node
+import { MCPClient } from "../client/MCPClient.js";
+import { printHelp } from "./help.js";
 
-import { MCPClient } from "./index.js";
-import * as readline from "readline";
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  prompt: "mcp> ",
-});
-
-let client: MCPClient | null = null;
-
-function printHelp() {
-  console.log(`
-Available commands:
-  connect <command> [args...]  - Connect to an MCP server
-  disconnect                   - Disconnect from the server
-  tools                        - List available tools
-  call <tool> [args...]       - Call a tool (args as JSON)
-  prompts                      - List available prompts
-  prompt <name> [args...]     - Get a prompt (args as JSON)
-  resources                    - List available resources
-  resource <uri>              - Read a resource
-  info                        - Get server information
-  help                        - Show this help
-  exit                        - Exit the client
-`);
-}
-
-async function handleCommand(line: string) {
+export async function handleCommand(
+  line: string,
+  client: MCPClient | null
+): Promise<MCPClient | null> {
   const parts = line.trim().split(/\s+/);
   const command = parts[0];
   const args = parts.slice(1);
 
   try {
     switch (command) {
-      case "connect":
-        if (args.length === 0) {
-          console.log("Usage: connect <command> [args...]");
-          break;
-        }
-        if (client) {
-          console.log("Already connected. Disconnect first.");
-          break;
-        }
-        client = new MCPClient({
-          command: args[0],
-          args: args.slice(1),
-        });
-        await client.connect();
-        break;
-
-      case "disconnect":
-        if (!client) {
-          console.log("Not connected to any server.");
-          break;
-        }
-        await client.disconnect();
-        client = null;
-        break;
-
       case "tools":
         if (!client) {
-          console.log("Not connected. Use 'connect' first.");
+          console.log("Error: Not connected to MCP server.");
           break;
         }
         const tools = await client.listTools();
@@ -71,7 +22,7 @@ async function handleCommand(line: string) {
 
       case "call":
         if (!client) {
-          console.log("Not connected. Use 'connect' first.");
+          console.log("Error: Not connected to MCP server.");
           break;
         }
         if (args.length === 0) {
@@ -86,7 +37,7 @@ async function handleCommand(line: string) {
 
       case "prompts":
         if (!client) {
-          console.log("Not connected. Use 'connect' first.");
+          console.log("Error: Not connected to MCP server.");
           break;
         }
         const prompts = await client.listPrompts();
@@ -95,7 +46,7 @@ async function handleCommand(line: string) {
 
       case "prompt":
         if (!client) {
-          console.log("Not connected. Use 'connect' first.");
+          console.log("Error: Not connected to MCP server.");
           break;
         }
         if (args.length === 0) {
@@ -110,7 +61,7 @@ async function handleCommand(line: string) {
 
       case "resources":
         if (!client) {
-          console.log("Not connected. Use 'connect' first.");
+          console.log("Error: Not connected to MCP server.");
           break;
         }
         const resources = await client.listResources();
@@ -119,7 +70,7 @@ async function handleCommand(line: string) {
 
       case "resource":
         if (!client) {
-          console.log("Not connected. Use 'connect' first.");
+          console.log("Error: Not connected to MCP server.");
           break;
         }
         if (args.length === 0) {
@@ -133,7 +84,7 @@ async function handleCommand(line: string) {
 
       case "info":
         if (!client) {
-          console.log("Not connected. Use 'connect' first.");
+          console.log("Error: Not connected to MCP server.");
           break;
         }
         const info = await client.getServerInfo();
@@ -162,23 +113,6 @@ async function handleCommand(line: string) {
   } catch (error) {
     console.error("Error:", error instanceof Error ? error.message : String(error));
   }
+
+  return client;
 }
-
-console.log("MCP Client - Model Context Protocol Client");
-console.log("Type 'help' for available commands.");
-printHelp();
-
-rl.prompt();
-
-rl.on("line", async (line) => {
-  await handleCommand(line);
-  rl.prompt();
-});
-
-rl.on("close", async () => {
-  if (client) {
-    await client.disconnect();
-  }
-  console.log("\nGoodbye!");
-  process.exit(0);
-});

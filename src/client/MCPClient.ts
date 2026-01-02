@@ -8,12 +8,7 @@ import {
   ListResourcesResultSchema,
   ReadResourceResultSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-
-export interface MCPClientOptions {
-  command: string;
-  args?: string[];
-  env?: Record<string, string>;
-}
+import type { MCPClientOptions } from "./types.js";
 
 export class MCPClient {
   private client: Client;

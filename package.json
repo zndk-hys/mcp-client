@@ -3,14 +3,13 @@
   "version": "1.0.0",
   "description": "A generic MCP (Model Context Protocol) client for stdio communication",
   "type": "module",
-  "main": "dist/index.js",
   "bin": {
-    "mcp-client": "./dist/cli.js"
+    "mcp-client": "./dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/cli.js",
+    "start": "node dist/cli/index.js",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
