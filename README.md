@@ -12,9 +12,10 @@ Model Context Protocol (MCP) サーバーと標準入出力 (stdio) で通信す
 
 ## インストール
 
+### グローバルインストール（推奨）
+
 ```bash
-npm install
-npm run build
+npm install git+https://github.com/zndk-hys/mcp-client.git
 ```
 
 ## 使い方
